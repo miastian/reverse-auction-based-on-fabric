@@ -10,12 +10,12 @@ public class BidHash {
     private String hash;
     private String orgs;
     private boolean revealed;
+    private FullBid revealedBid;
 
-    public BidHash(String hash)
-    {
-        this.hash=hash;
+    public BidHash(String hash) {
+        this.hash = hash;
         this.orgs = null;
-        this.revealed=false;
+        this.revealed = false;
     }
 
     public String getHash() {
@@ -26,11 +26,16 @@ public class BidHash {
         return orgs;
     }
 
-    public void setRevealed(){
-        this.revealed=true;
+    public void setRevealed() {
+        this.revealed = true;
     }
 
-    public boolean isRevealed(){
+    public boolean isRevealed() {
         return revealed;
     }
+
+    public void setRevealedBid(Fullbid revealedBid){
+        this.revealedBid=revealedBid;
+    }
+
 }

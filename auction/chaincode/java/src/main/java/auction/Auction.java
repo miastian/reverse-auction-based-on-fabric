@@ -14,15 +14,15 @@ public final class Auction {
 
     private final String seller;
 
-    private  List<String> orgs;
+    private List<String> orgs;
 
-    private  String winner;
+    private String winner;
 
-    private  String status;
+    private String status;
 
     private List<BidHash> bids;
 
-    private  int price;
+    private int price;
 
     public Auction(final String auctionName, final String seller, final String itemSold) {
         this.auctionName = auctionName;
@@ -32,7 +32,7 @@ public final class Auction {
         this.itemSold = itemSold;
         this.winner = "";
         this.status = "open";
-        this.bids=null;
+        this.bids = null;
     }
 
     public String getAuctionName() {
@@ -63,22 +63,22 @@ public final class Auction {
         return price;
     }
 
-    public List<Integer> getBids(){
+    public List<BidHash> getBids() {
         return bids;
     }
 
-    public void setWinner(final String winner){
-        this.winner=winner;
+    public void setWinner(final String winner) {
+        this.winner = winner;
     }
 
-    public void setStatus(final String status){
-        this.status=status;
+    public void setStatus(final String status) {
+        this.status = status;
     }
 
-    public void addBid(final int bid){
+    public void addBid(final BidHash bid) {
         this.bids.add(bid);
     }
-    //how to add bid  to the array
+    // how to add bid to the array
 
     @Override
     public String toString() {

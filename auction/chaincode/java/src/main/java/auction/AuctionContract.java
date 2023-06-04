@@ -23,93 +23,97 @@ import com.owlike.genson.Genson;
 public class AuctionContract {
 
     @Transaction(intent = Transaction.TYPE.SUBMIT)
-    public Auction createAuction(final Contex ctx,final String auctionName,final String seller,final String itemSold) {
-        ChaincodeStub stub=ctx.getStub();
+    public Auction createAuction(final Context ctx, final String auctionName, final String seller,
+            final String itemSold) {
+        ChaincodeStub stub = ctx.getStub();
 
         return new Auction(auctionName, seller, itemSold);
     }
 
-    //here, we shall use function:queryAuction to get one auction,but now instead,we simply input it
+    // here, we shall use function:queryAuction to get one auction,but now
+    // instead,we simply input it
     @Transaction(intent = Transaction.TYPE.SUBMIT)
-    public void submitBid(final Contex ctx,final Auction auction,final int bid){
+    public void submitBid(final Context ctx, final Auction auction, final BidHash bid) {
         ChaincodeStub stub = ctx.getStub();
 
-        if(!"open".equals(auction.getStatus())){
-            //System.out.println("Submitting failed!The auction "+auction.getStatus()+"!");
-            //using logger instead of println
+        if (!"open".equals(auction.getStatus())) {
+            // System.out.println("Submitting failed!The auction "+auction.getStatus()+"!");
+            // using logger instead of println
             final Logger logger = Logger.getLogger("Mylogger");
-            logger.info("Submitting failed!The auction is "+auction.getStatus()+"!");
+            logger.info("Submitting failed!The auction is " + auction.getStatus() + "!");
         }
 
         auction.addBid(bid);
     }
 
     @Transaction(intent = Transaction.TYPE.SUBMIT)
-    public void closeAuction(final Auction auction){
-        if(!"open".equals(auction.getStatus())){
-            //System.out.println("Submitting failed!The auction "+auction.getStatus()+"!");
-            //using logger instead of println
+    public void closeAuction(final Auction auction) {
+        if (!"open".equals(auction.getStatus())) {
+            // System.out.println("Submitting failed!The auction "+auction.getStatus()+"!");
+            // using logger instead of println
             final Logger logger = Logger.getLogger("Mylogger");
-            logger.info("Submitting failed!The auction is already"+auction.getStatus()+"!");
+            logger.info("Submitting failed!The auction is already" + auction.getStatus() + "!");
         }
 
         auction.setStatus("close");
     }
 
     @Transaction(intent = Transaction.TYPE.SUBMIT)
-    public void endAuction(final Auction auction){
-        if(!"open".equals(auction.getStatus())){
-            //System.out.println("Submitting failed!The auction "+auction.getStatus()+"!");
-            //using logger instead of println
+    public void endAuction(final Auction auction) {
+        if (!"open".equals(auction.getStatus())) {
+            // System.out.println("Submitting failed!The auction "+auction.getStatus()+"!");
+            // using logger instead of println
             final Logger logger = Logger.getLogger("Mylogger");
-            logger.info("Submitting failed!The auction is already"+auction.getStatus()+"!");
+            logger.info("Submitting failed!The auction is already" + auction.getStatus() + "!");
         }
 
         auction.setStatus(("ended"));
     }
 
     @Transaction(intent = Transaction.TYPE.EVALUATE)
-    public String queryAuction(final Contex ctx,Auction auction){
+    public String queryAuction(final Context ctx, Auction auction) {
         ChaincodeStub stub = ctx.getStub();
 
-        final String status = ctx.getStatus();
+        final String status = auction.getStatus();
 
-        if ("open".equals(status))
-        {
+        if ("open".equals(status)) {
             return ctx.toString();
         }
 
-        else 
-        {
+        else {
             final Logger logger = Logger.getLogger("Mylogger");
-            logger.info("Querying failed!The auction is already"+auction.getStatus()+"!");
+            logger.info("Querying failed!The auction is already" + auction.getStatus() + "!");
             throw new ChaincodeException();
         }
     }
 
     @Transaction(intent = Transaction.TYPE.EVALUATE)
-    public boolean checkForHigherBid(final Contex ctx,Auction auction,int auctionPrice,List<BidHash> bidders,List<FullBid> revealedBidders){
-        //get MSP ID of peer org
-        String peerMSPID=ctx.MSP();
+    public boolean checkForHigherBid(final Context ctx, Auction auction, int auctionPrice, List<BidHash> bidders,
+            List<FullBid> revealedBidders) {
+        // get MSP ID of peer org
+        ChaincodeStub stub = ctx.getStub();
+        String peerMSPID = stub.getMspId();
+    
 
-        for(int i =0;i<bidders.size();i++){
-            if(bidders.get(i).isRevealed()){
-                //bid is already revealed, no action to take
-            }
-            else{
-                //might be wrong
-                if(peerMSPID==bidders.get(i).getOrgs()){
-                //bid is not revealed yet, need to be compared with auctionPrice, if this bid is higher, then return false;
-                //here we need to reveal the price and compare
-                if(bidders.get(i).getPrice() > auctionPrice){
-                  
-            final Logger logger = Logger.getLogger("Mylogger");
-            logger.info("Cannot close auction, bidder has a higher price"+auction.getStatus()+"!");
-                  return false;
-                }
+        for (int i = 0; i < bidders.size(); i++) {
+            if (bidders.get(i).isRevealed()) {
+                // bid is already revealed, no action to take
+            } else {
+                // might be wrong
+                if (peerMSPID == bidders.get(i).getOrgs()) {
+                    // bid is not revealed yet, need to be compared with auctionPrice, if this bid
+                    // is higher, then return false;
+                    // here we need to reveal the price and compare
+                    if(bidders.get(i).getPrice() > auctionPrice){
+
+                    final Logger logger = Logger.getLogger("Mylogger");
+                    logger.info("Cannot close auction, bidder has a higher price" + auction.getStatus() + "!");
+                    return true;
+                    }
                 }
             }
         }
+        return false;
     }
 
 }
